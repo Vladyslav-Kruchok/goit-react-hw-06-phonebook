@@ -1,0 +1,13 @@
+.list {
+    margin-bottom: 10px;
+}
+.span {
+    margin-right: 10px;
+}
+.link {
+    margin-right: 10px;
+}
+.button {
+    cursor: pointer;
+    margin-right: 10px;
+}
