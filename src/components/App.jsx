@@ -1,86 +1,41 @@
-import React, { useState, useEffect } from "react";
-import { nanoid } from 'nanoid';
+import React from "react";
 
+import {  addItem,
+          removeItem,
+          addFilter,}
+from './Redux/store';
+
+import { useSelector, useDispatch } from "react-redux";
 import { ContactForm } from "../components/ContactForm";
 import { ContactList } from "../components/ContactList";
 import { Filter } from "../components/Filter";
-
-const INITIAL_STATE = [
-    {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-    {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-    {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-    {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
-];
-const useLocalStorage = (key, defaultVal) => { 
-  const [state, setState] = useState(() => {
-    const contactStorage = window.localStorage.getItem(key);
-    return JSON.parse(contactStorage) || defaultVal;
-  });
-      
-  useEffect(() => { 
-    window.localStorage.setItem(key, JSON.stringify(state));
-  }, [key, state]);
-  
-  return [state, setState];
-};
+import viewContacts from '../helpers/viewContacts';
+import addId from '../helpers/addId';
 
 export const App = () => {
-  const [contacts, setContacts] = useLocalStorage("contacts", INITIAL_STATE);
-  const [filter, setFilter] = useState("");
+  const dispatch = useDispatch();
+  //store
+  const stateItemValue = useSelector(state => state.items);
+  const stateFilterValue = useSelector(state => state.filter);
+
   //#region ON_FUNC #
-  //(import) Data from ContactForm
+  //(import) Add to store Data from ContactForm
   const extFormOnSubmit = (data) => {
-    //console.log(data.name);
-    setContacts((prevState) => {
-        //console.log(prevState);
-        const result = prevState.find(item => item.name === data.name);
-        //console.log(result);
-        if (!result) {
-          return [...prevState, addId(data)];
-        } else {
-          alert(`${data.name} is already in a contact`);
-          return prevState;
-        }
-    });
+    //typeof=object
+    //data ==>> {name: 'Dustin Beck', number: '+1 (886) 951-7896'}
+    const dataPlusId = addId(data);
+    dispatch(addItem(dataPlusId));
   }
   //del item in ContactList
   const extListOnClick = (e) => {
-    const id = e.nativeEvent.target.id;
-    setContacts((prevState) => {
-      const newArr = prevState.filter(item => item.id !== id);
-      return [...newArr];
-    });
+    const id = e.target.id;
+    dispatch(removeItem(id));
   };
   //update state filter
-  const extInputOnInput = (e) => { 
-    setFilter(e.target.value);
+  const extInputOnInput = (e) => {
+    dispatch(addFilter(e.target.value));
   };
   //#endregion #
-
-  //#region HELPERS #
-  //add "id" by transformation from data to JSON and back
-  function addId(str) {
-    //make id
-    const id = nanoid();
-    //part one JSON str
-    const idStr_PartOne = `{"id":"${id}",`;
-    //part two JSON str
-    const str_PartTwoo = JSON.stringify(str).slice(1);
-    //return new JSON str with Id
-    return JSON.parse(`${idStr_PartOne}${str_PartTwoo}`);
-    };
-  const viewContacts = () => {
-    //console.log(filter);
-    const lowerCaseFilter = filter.toLowerCase();
-    //console.log(lowerCaseFilter);
-    //console.log(contacts);
-    const viewContacts = contacts.filter(
-    item => item.name.toLowerCase().includes(lowerCaseFilter));
-    //console.log(viewContacts);
-    return viewContacts;      
-  };
-  //#endregion #
-    
 
     return(
       <div>
@@ -88,7 +43,9 @@ export const App = () => {
         <ContactForm onSubmit={extFormOnSubmit } />
         <h2>Contacts</h2>
         <Filter onInput={extInputOnInput} />
-        {contacts && <ContactList contacts={viewContacts()} onClick={extListOnClick} />}
+        {stateItemValue && <ContactList 
+          contacts={viewContacts(stateFilterValue,stateItemValue)}
+          onClick={extListOnClick} />}
       </div>
     );
 };
