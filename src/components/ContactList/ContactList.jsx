@@ -1,25 +1,30 @@
-import PropsType from "prop-types";
-import React from "react";
-import { ListItem } from "../ListItem";
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import * as contactsActions from '../../redux/contacts/contactsActions';
 
-export const ContactList = ({ contacts, onClick }) => { 
-        return (
-            <ul>
-                {
-                    contacts.map(({ id, name, number }) => 
-                        <ListItem onClick={onClick} key={id} id={id} name={name} number={number} />
-                    )
-                }
-            </ul>
-        );
-};
+import { ListItem } from '../ListItem';
 
-ContactList.protoType = {
-    contacts: PropsType.arrayOf(PropsType.shape({
-            id: PropsType.string.isRequired,
-            name: PropsType.string.isRequired,
-            number: PropsType.string.isRequired
-        }
-    )),
-    onClick: PropsType.func.isRequired
+import viewContacts from '../../helpers/viewContacts';
+
+export const ContactList = () => { 
+    const dispatch = useDispatch();
+    //store
+    const stateItemValue = useSelector(state => state.items);
+    const stateFilterValue = useSelector(state => state.filter);
+    
+    const contacts = viewContacts(stateFilterValue, stateItemValue);
+
+    const onClickDel = (e) => { 
+        const id = e.target.id;
+        dispatch(contactsActions.removeItem(id));
     };
+    return (
+        <ul>
+            {
+                stateItemValue && contacts.map(({ id, name, number }) => 
+                    <ListItem onClick={onClickDel} key={id} id={id} name={name} number={number} />
+                )
+            }
+        </ul>
+    );
+};

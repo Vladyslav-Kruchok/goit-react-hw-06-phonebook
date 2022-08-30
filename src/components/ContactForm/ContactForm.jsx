@@ -1,28 +1,35 @@
-import React, { useState } from "react";
-import PropsType from "prop-types";
-import styles from "./ContactForm.module.css";
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import * as contactsActions from '../../redux/contacts/contactsActions';
+import styles from './ContactForm.module.css';
+import { nanoid } from 'nanoid';
 
-export const ContactForm = ({onSubmit}) => { 
-const [name, setNameContact] = useState("");
-const [number, setNumberContact] = useState("");
+export const ContactForm = () => {
+    //local state
+    const [name, setNameContact] = useState('');
+    const [number, setNumberContact] = useState('');
+    
+    const dispatch = useDispatch();
 
 //transfer to external file (export)
     const formOnSubmit = (e) => {
+        //make id
         e.preventDefault();
-        onSubmit({ name, number });
+        const id = nanoid();
+        dispatch(contactsActions.addItem({id , name, number }));
         resetFormInput();
     };
-    const contact = {
-        name: "name",
-        number: "number"
+    const contactInput = {
+        name: 'name',
+        number: 'number'
     };
     const inputOnChange = (e) => {
         const { name, value } = e.currentTarget;
         switch (name) {
-            case contact.name:
+            case contactInput.name:
                 setNameContact(value);
                 break;
-            case contact.number:
+            case contactInput.number:
                 setNumberContact(value);
                 break;
             default:
@@ -30,8 +37,8 @@ const [number, setNumberContact] = useState("");
         }
     };
     const resetFormInput = () => { 
-        setNameContact("");
-        setNumberContact("");
+        setNameContact('');
+        setNumberContact('');
     };
 
     return (
@@ -40,8 +47,8 @@ const [number, setNumberContact] = useState("");
                 <span className={styles.span}>Name</span>
                 <input
                     className={styles.input}
-                    type="text"
-                    name="name"
+                    type='text'
+                    name='name'
                     value={name}
                     onChange={inputOnChange}
                     required
@@ -51,18 +58,15 @@ const [number, setNumberContact] = useState("");
                 <span className={styles.span}>Number</span>
                 <input
                     className={styles.input}
-                    type="tel"
-                    name="number"
-                    title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+                    type='tel'
+                    name='number'
+                    title='Phone number must be digits and can contain spaces, dashes, parentheses and can start with +'
                     required
                     value={number}
                     onChange={inputOnChange}
                 />
             </label>
-            <button className={styles.button} type="submit">Add contacts</button>
+            <button className={styles.button} type='submit'>Add contacts</button>
         </form>
     );
-};
-ContactForm.protoType = {
-onSubmit: PropsType.func.isRequired
 };
