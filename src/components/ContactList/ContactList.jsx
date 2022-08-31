@@ -11,9 +11,8 @@ export const ContactList = () => {
     //store
     const stateItemValue = useSelector(state => state.items);
     const stateFilterValue = useSelector(state => state.filter);
-    
     const contacts = viewContacts(stateFilterValue, stateItemValue);
-
+    
     const onClickDel = (e) => { 
         const id = e.target.id;
         dispatch(contactsActions.removeItem(id));
